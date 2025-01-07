@@ -1,38 +1,34 @@
 import streamlit as st
-import numpy as np
 import joblib
+import pandas as pd
 
-# Load Models
-st.title("Football Match Prediction App")
-st.write("Predict match outcomes such as Over 2.5 goals and match results.")
+# Load the models
+model_o2_5 = joblib.load('model_o2_5.pkl')
+model_result = joblib.load('model_result.pkl')
 
-# Load models
-model_match_result = joblib.load("model_result.pkl")
-model_o2_5 = joblib.load("model_o2_5.pkl")
+st.title("FootyPred: Football Match Predictor")
 
-# Input Features
-st.sidebar.header("Input Features")
-home_odds = st.sidebar.number_input("Home Odds", value=2.5, step=0.1)
-draw_odds = st.sidebar.number_input("Draw Odds", value=3.0, step=0.1)
-away_odds = st.sidebar.number_input("Away Odds", value=3.5, step=0.1)
+# Input fields
+home_team = st.text_input("Home Team")
+away_team = st.text_input("Away Team")
+date = st.date_input("Match Date")
+home_odds = st.number_input("Home Odds", min_value=0.0)
+draw_odds = st.number_input("Draw Odds", min_value=0.0)
+away_odds = st.number_input("Away Odds", min_value=0.0)
 
-input_features = np.array([[home_odds, draw_odds, away_odds]])
+if st.button("Predict"):
+    # Create a DataFrame for the input features
+    features = pd.DataFrame([{
+        'HomeOdds': home_odds,
+        'DrawOdds': draw_odds,
+        'AwayOdds': away_odds
+    }])
 
-# Predictions
-st.subheader("Predictions")
+    # Make predictions
+    prediction_o2_5 = model_o2_5.predict(features)
+    prediction_result = model_result.predict(features)
 
-# Match Result Prediction
-if st.button("Predict Match Result"):
-    match_result = model_match_result.predict(input_features)
-    result_map = {0: "Draw", 1: "Away Win", 2: "Home Win"}
-    st.write(f"Predicted Match Result: **{result_map[match_result[0]]}**")
-
-# Over 2.5 Goals Prediction
-if st.button("Predict Over 2.5 Goals"):
-    over_2_5_prediction = model_o2_5.predict(input_features)
-    st.write(f"Predicted Over 2.5 Goals: **{'Yes' if over_2_5_prediction[0] == 1 else 'No'}**")
-
-# Optional: Display Features
-if st.checkbox("Show Input Features"):
-    st.write("Input features are:")
-    st.write(input_features)
+    # Display predictions
+    st.write(f"Prediction for Over 2.5 Goals: {'Yes' if prediction_o2_5[0] == 1 else 'No'}")
+    st.write(f"Predicted Match Result: {prediction_result[0]}")
+    st.write(f"Match between {home_team} and {away_team} on {date}")
