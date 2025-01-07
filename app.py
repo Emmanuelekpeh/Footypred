@@ -11,16 +11,18 @@ model_result = joblib.load('model_result.pkl')
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json(force=True)
+    
     # Extract features from the request
     features = pd.DataFrame([{
         'HomeOdds': data['HomeOdds'],
         'DrawOdds': data['DrawOdds'],
         'AwayOdds': data['AwayOdds']
     }])
+    
     prediction_o2_5 = model_o2_5.predict(features)
     prediction_result = model_result.predict(features)
     
-    # Include the original input data (team names and date) in the response
+    # Include the original input data in the response
     response = {
         'prediction_o2_5': prediction_o2_5[0],
         'prediction_result': prediction_result[0],
