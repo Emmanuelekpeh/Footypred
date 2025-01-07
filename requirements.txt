@@ -1,5 +1,5 @@
 flask
 joblib
 pandas
-Lightgbm
+lightgbm
 catboost
