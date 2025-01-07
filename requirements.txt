@@ -1,5 +1,4 @@
 flask
 joblib
 pandas
-lightgbm
-catboost
+scikit-learn
