@@ -11,7 +11,12 @@ model_result = joblib.load('model_result.pkl')
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json(force=True)
-    features = pd.DataFrame([data['features']])
+    # Extract features from the request
+    features = pd.DataFrame([{
+        'HomeOdds': data['HomeOdds'],
+        'DrawOdds': data['DrawOdds'],
+        'AwayOdds': data['AwayOdds']
+    }])
     prediction_o2_5 = model_o2_5.predict(features)
     prediction_result = model_result.predict(features)
     
@@ -19,9 +24,9 @@ def predict():
     response = {
         'prediction_o2_5': prediction_o2_5[0],
         'prediction_result': prediction_result[0],
-        'home_team': data['features']['HomeTeam'],
-        'away_team': data['features']['AwayTeam'],
-        'date': data['features']['Date']
+        'home_team': data['HomeTeam'],
+        'away_team': data['AwayTeam'],
+        'date': data['Date']
     }
     
     return jsonify(response)
